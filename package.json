@@ -1,0 +1,14 @@
+{
+  "name": "gameoflife",
+  "version": "0.0.0",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.14.0",
+    "babel-register": "^6.14.0",
+    "babelify": "^7.3.0",
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4"
+  },
+  "scripts": {
+    "test": "mocha tests/**/*.js --compilers js:babel-register"
+  }
+}
