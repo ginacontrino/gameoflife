@@ -5,94 +5,58 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _Grid = require('./Grid');
+var _MatrixHelpers = require('./MatrixHelpers');
 
-var _Grid2 = _interopRequireDefault(_Grid);
-
-var _MathUtils = require('./MathUtils');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var matrix = [];
 
 exports.default = {
-    getNextGeneration: function getNextGeneration(grid) {
-        var nextGenerationGrid = _Grid2.default.makeZeroMatrix(grid.length, grid[0].length);
-
-        for (var x = 0; x < grid.length; x++) {
-            for (var y = 0; y < grid[x].length; y++) {
-                nextGenerationGrid[x][y] = this.getNextCellState(x, y, grid);
-            }
-        }
-
-        return nextGenerationGrid;
+    init: function init(rows, columns) {
+        matrix = (0, _MatrixHelpers.create)(rows, columns, true);
     },
-    getNextCellState: function getNextCellState(x, y, grid) {
-        var cellState = grid[x][y];
-        var activeNeighbours = this.getNeighbours(x, y, grid).filter(function (a) {
-            return a;
-        }).length;
-
-        if (cellState && activeNeighbours < 2) return 0;
-
-        if (cellState && activeNeighbours > 3) return 0;
-
-        if (!cellState && activeNeighbours === 3) return 1;else return cellState;
+    getMatrix: function getMatrix() {
+        return matrix;
     },
+    getNextGeneration: function getNextGeneration() {
+        matrix = (0, _MatrixHelpers.nextGenerationMatrix)(matrix);
 
-
-    getNeighbours: function getNeighbours(x, y, grid) {
-        // to get the number of columns, just get length of the first row
-        var numberOfColumns = grid[0].length;
-        var numberRows = grid.length;
-
-        var leftColumn = (0, _MathUtils.mod)(y - 1, numberOfColumns);
-        var rightColumn = (0, _MathUtils.mod)(y + 1, numberOfColumns);
-        var topRow = (0, _MathUtils.mod)(x - 1, numberRows);
-        var bottomRow = (0, _MathUtils.mod)(x + 1, numberRows);
-
-        var left = grid[x][leftColumn];
-        var topleft = grid[topRow][leftColumn];
-        var top = grid[topRow][y];
-        var topright = grid[topRow][rightColumn];
-        var right = grid[x][rightColumn];
-        var bottomright = grid[bottomRow][rightColumn];
-        var bottom = grid[bottomRow][y];
-        var bottomleft = grid[bottomRow][leftColumn];
-
-        return [left, topleft, top, topright, right, bottomright, bottom, bottomleft];
+        return matrix;
     }
 };
 
-},{"./Grid":2,"./MathUtils":3}],2:[function(require,module,exports){
-"use strict";
+},{"./MatrixHelpers":3}],2:[function(require,module,exports){
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.default = {
+    init: function init(matrix) {
+        for (var row = 0; row < matrix.length; row++) {
+            var rowElement = document.createElement('div');
+            document.querySelector('.GameOfLife-canvas').appendChild(rowElement);
 
-    make: function make(height, width) {
-        var matrix = [];
+            for (var column = 0; column < matrix[row].length; column++) {
+                var cellElement = document.createElement('div');
+                cellElement.className = 'GameOfLife-cell';
+                cellElement.classList.add('GameOfLife-cell-' + row + '-' + column);
 
-        for (var i = 0; i < height; i++) {
-            matrix[i] = [];
-            for (var j = 0; j < width; j++) {
-                matrix[i][j] = Math.round(Math.random());
+                if (matrix[row][column]) cellElement.classList.add('is-active');
+
+                rowElement.appendChild(cellElement);
             }
         }
-
-        return matrix;
     },
+    update: function update(matrix) {
+        document.querySelector('.GameOfLife').classList.add('has-started');
 
-    makeZeroMatrix: function makeZeroMatrix(rows, columns) {
-        var matrix = [];
-        for (var x = 0; x < rows; x++) {
-            var a = [];
-            for (var y = 0; y < columns; y++) {
-                a[y] = 0;
+        for (var x = 0; x < matrix.length; x++) {
+            for (var y = 0; y < matrix[x].length; y++) {
+                var currentDiv = document.querySelector('.GameOfLife-cell-' + x + '-' + y);
+
+                var classList = currentDiv.classList;
+                matrix[x][y] ? classList.add('is-active') : classList.remove('is-active');
             }
-            matrix[x] = a;
         }
-        return matrix;
     }
 };
 
@@ -100,75 +64,111 @@ exports.default = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-var mod = exports.mod = function mod(n, m) {
-  return (n % m + m) % m;
+// implementation of real mod operator
+var mod = function mod(n, m) {
+    return (n % m + m) % m;
 };
+
+// creates a new matrix, optionally randomizes cell values to 0 or 1
+var create = exports.create = function create(rows, columns) {
+    var randomize = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
+    var matrix = [];
+
+    for (var rowIndex = 0; rowIndex < rows; rowIndex++) {
+        var row = [];
+
+        for (var columnIndex = 0; columnIndex < columns; columnIndex++) {
+            row[columnIndex] = randomize ? Math.round(Math.random()) : 0;
+        }
+
+        matrix[rowIndex] = row;
+    }
+
+    return matrix;
+};
+
+// calculate the next generation of a matrix according to game of life rules
+var nextGenerationMatrix = exports.nextGenerationMatrix = function nextGenerationMatrix(matrix) {
+    var nextGeneration = create(matrix.length, matrix[0].length);
+
+    for (var row = 0; row < matrix.length; row++) {
+        for (var column = 0; column < matrix[row].length; column++) {
+            nextGeneration[row][column] = nextGenerationCell(row, column, matrix);
+        }
+    }
+
+    return nextGeneration;
+};
+
+// calculate the next generation of a single cell according to game of life rules
+function nextGenerationCell(row, column, matrix) {
+    var activeNeighbours = getCellNeighbours(row, column, matrix).filter(function (a) {
+        return a;
+    }).length;
+
+    if (matrix[row][column] && activeNeighbours < 2) return 0;
+
+    if (matrix[row][column] && activeNeighbours > 3) return 0;
+
+    if (!matrix[row][column] && activeNeighbours === 3) return 1;
+
+    return matrix[row][column];
+}
+
+// get all the neighbour cells of a given cell assuming "infinite" grid
+function getCellNeighbours(x, y, matrix) {
+    // to get the number of columns, just get length of the first row
+    var numberOfColumns = matrix[0].length;
+    var numberRows = matrix.length;
+
+    var leftColumn = mod(y - 1, numberOfColumns);
+    var rightColumn = mod(y + 1, numberOfColumns);
+    var topRow = mod(x - 1, numberRows);
+    var bottomRow = mod(x + 1, numberRows);
+
+    var left = matrix[x][leftColumn];
+    var topleft = matrix[topRow][leftColumn];
+    var top = matrix[topRow][y];
+    var topright = matrix[topRow][rightColumn];
+    var right = matrix[x][rightColumn];
+    var bottomright = matrix[bottomRow][rightColumn];
+    var bottom = matrix[bottomRow][y];
+    var bottomleft = matrix[bottomRow][leftColumn];
+
+    return [left, topleft, top, topright, right, bottomright, bottom, bottomleft];
+}
 
 },{}],4:[function(require,module,exports){
 'use strict';
 
-var _GameOfLife = require('./GameOfLife');
+var _GameOfLifeModel = require('./GameOfLifeModel');
 
-var _GameOfLife2 = _interopRequireDefault(_GameOfLife);
+var _GameOfLifeModel2 = _interopRequireDefault(_GameOfLifeModel);
 
-var _Grid = require('./Grid');
+var _GameOfLifeView = require('./GameOfLifeView');
 
-var _Grid2 = _interopRequireDefault(_Grid);
+var _GameOfLifeView2 = _interopRequireDefault(_GameOfLifeView);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var context = document.getElementById("context");
-var button = document.getElementById("button");
+var gameOfLifeElement = document.querySelector('.GameOfLife');
+var rows = gameOfLifeElement.getAttribute('rows');
+var columns = gameOfLifeElement.getAttribute('columns');
 
-var matrix = [];
+// Initialize the game to a random 30x30 matrix
+_GameOfLifeModel2.default.init(rows, columns);
 
-button.addEventListener('click', function () {
-    init();
-    setInterval(function () {
-        return updateAndDraw(matrix);
+// Draw the initial game matrix in the browser
+_GameOfLifeView2.default.init(_GameOfLifeModel2.default.getMatrix());
+
+// When the start button is clicked, play the game every 200 milliseconds
+document.querySelector('.GameOfLife-startButton').addEventListener('click', function () {
+    return setInterval(function () {
+        _GameOfLifeView2.default.update(_GameOfLifeModel2.default.getNextGeneration());
     }, 200);
-    context.style.display = 'block';
-    button.style.display = 'none';
 });
 
-function init() {
-    matrix = _Grid2.default.make(24, 24);
-
-    for (var x = 0; x < matrix.length; x++) {
-        var row = document.createElement("div");
-        row.className = "row";
-        row.classList.add('row-' + x);
-
-        context.appendChild(row);
-
-        for (var y = 0; y < matrix[x].length; ++y) {
-            var cell = document.createElement("div");
-
-            cell.className = 'cell';
-            cell.classList.add(matrix[x][y] ? 'active' : 'inactive');
-            cell.classList.add('cell-' + x + '-' + y);
-
-            row.appendChild(cell);
-        }
-    }
-}
-
-function updateAndDraw(grid) {
-
-    var newGrid = _GameOfLife2.default.getNextGeneration(grid);
-    matrix = newGrid;
-
-    for (var x = 0; x < newGrid.length; x++) {
-        for (var y = 0; y < newGrid[x].length; y++) {
-            var currentDiv = document.getElementsByClassName('cell-' + x + '-' + y);
-
-            var classList = currentDiv[0].classList;
-            classList.contains('active') ? classList.remove('active') : classList.remove('inactive');
-            classList.add(newGrid[x][y] ? 'active' : 'inactive');
-        }
-    }
-}
-
-},{"./GameOfLife":1,"./Grid":2}]},{},[4]);
+},{"./GameOfLifeModel":1,"./GameOfLifeView":2}]},{},[4]);
