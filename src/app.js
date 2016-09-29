@@ -6,7 +6,7 @@ const rows = gameOfLifeElement.getAttribute('rows')
 const columns = gameOfLifeElement.getAttribute('columns')
 
 // Initialize the game to a random 30x30 matrix
-GameOfLifeModel.init(rows, columns)
+GameOfLifeModel.init(rows, columns, true)
 
 // Draw the initial game matrix in the browser
 GameOfLifeView.init(GameOfLifeModel.getMatrix())

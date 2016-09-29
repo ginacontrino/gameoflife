@@ -32,7 +32,7 @@ export const nextGenerationMatrix = function(matrix) {
 }
 
 // calculate the next generation of a single cell according to game of life rules
-function nextGenerationCell(row, column, matrix) {
+export const nextGenerationCell = function(row, column, matrix) {
     const activeNeighbours = getCellNeighbours(row, column, matrix).filter(a => a).length
 
     if( matrix[row][column] && activeNeighbours < 2 ) return 0

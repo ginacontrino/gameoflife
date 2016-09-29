@@ -10,14 +10,14 @@ var _MatrixHelpers = require('./MatrixHelpers');
 var matrix = [];
 
 exports.default = {
-    init: function init(rows, columns) {
-        matrix = (0, _MatrixHelpers.create)(rows, columns, true);
+    init: function init(rows, columns, randomize) {
+        matrix = (0, _MatrixHelpers.create)(rows, columns, randomize);
     },
     getMatrix: function getMatrix() {
         return matrix;
     },
-    getNextGeneration: function getNextGeneration() {
-        matrix = (0, _MatrixHelpers.nextGenerationMatrix)(matrix);
+    getNextGeneration: function getNextGeneration(matrixAsArgument) {
+        matrix = (0, _MatrixHelpers.nextGenerationMatrix)(arguments.length ? matrixAsArgument : matrix);
 
         return matrix;
     }
@@ -104,7 +104,7 @@ var nextGenerationMatrix = exports.nextGenerationMatrix = function nextGeneratio
 };
 
 // calculate the next generation of a single cell according to game of life rules
-function nextGenerationCell(row, column, matrix) {
+var nextGenerationCell = exports.nextGenerationCell = function nextGenerationCell(row, column, matrix) {
     var activeNeighbours = getCellNeighbours(row, column, matrix).filter(function (a) {
         return a;
     }).length;
@@ -116,7 +116,7 @@ function nextGenerationCell(row, column, matrix) {
     if (!matrix[row][column] && activeNeighbours === 3) return 1;
 
     return matrix[row][column];
-}
+};
 
 // get all the neighbour cells of a given cell assuming "infinite" grid
 function getCellNeighbours(x, y, matrix) {
@@ -159,7 +159,7 @@ var rows = gameOfLifeElement.getAttribute('rows');
 var columns = gameOfLifeElement.getAttribute('columns');
 
 // Initialize the game to a random 30x30 matrix
-_GameOfLifeModel2.default.init(rows, columns);
+_GameOfLifeModel2.default.init(rows, columns, true);
 
 // Draw the initial game matrix in the browser
 _GameOfLifeView2.default.init(_GameOfLifeModel2.default.getMatrix());
