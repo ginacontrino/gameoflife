@@ -16,8 +16,8 @@ exports.default = {
     getMatrix: function getMatrix() {
         return matrix;
     },
-    getNextGeneration: function getNextGeneration(matrixAsArgument) {
-        matrix = (0, _MatrixHelpers.nextGenerationMatrix)(arguments.length ? matrixAsArgument : matrix);
+    getNextGeneration: function getNextGeneration() {
+        matrix = (0, _MatrixHelpers.nextGenerationMatrix)(matrix);
 
         return matrix;
     }

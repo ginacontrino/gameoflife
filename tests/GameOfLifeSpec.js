@@ -1,6 +1,5 @@
 import { expect } from 'chai'
-import GameOfLifeModel from '../src/GameOfLifeModel'
-import { nextGenerationCell } from '../src/MatrixHelpers'
+import { create, nextGenerationCell, nextGenerationMatrix } from '../src/MatrixHelpers'
 
 
 describe('Game Of Life Module', () => {
@@ -9,12 +8,10 @@ describe('Game Of Life Module', () => {
 
         it('it can be initialised with rows and columns', () => {
 
-            GameOfLifeModel.init(3,3)
-            expect(GameOfLifeModel.getMatrix()).to.eql([
+            expect(create(3,3)).to.eql([
                 [0,0,0],
                 [0,0,0],
                 [0,0,0],
-
             ])
 
         })
@@ -126,7 +123,7 @@ describe('Game Of Life Module', () => {
                     [0, 0, 0, 0],
                 ]
 
-                expect(GameOfLifeModel.getNextGeneration(block)).to.eql(block)
+                expect(nextGenerationMatrix(block)).to.eql(block)
 
             })
 
@@ -139,7 +136,7 @@ describe('Game Of Life Module', () => {
                     [0, 0, 0, 0, 0, 0],
                 ]
 
-                expect(GameOfLifeModel.getNextGeneration(beehive)).to.eql(beehive)
+                expect(nextGenerationMatrix(beehive)).to.eql(beehive)
             })
 
             it('is stable for the loaf', () => {
@@ -152,7 +149,7 @@ describe('Game Of Life Module', () => {
                     [0, 0, 0, 0, 0, 0],
                 ]
 
-                expect(GameOfLifeModel.getNextGeneration(loaf)).to.eql(loaf)
+                expect(nextGenerationMatrix(loaf)).to.eql(loaf)
             })
         })
 
@@ -175,8 +172,8 @@ describe('Game Of Life Module', () => {
                     [0, 0, 0, 0, 0],
                 ]
 
-                expect(GameOfLifeModel.getNextGeneration(gen1)).to.deep.equal(gen2)
-                expect(GameOfLifeModel.getNextGeneration(gen2)).to.deep.equal(gen1)
+                expect(nextGenerationMatrix(gen1)).to.deep.equal(gen2)
+                expect(nextGenerationMatrix(gen2)).to.deep.equal(gen1)
             })
         })
 
@@ -207,8 +204,8 @@ describe('Game Of Life Module', () => {
                     [0, 0, 0, 0, 0],
                 ]
 
-                expect(GameOfLifeModel.getNextGeneration(gen1)).to.deep.equal(gen2)
-                expect(GameOfLifeModel.getNextGeneration(gen2)).to.deep.equal(gen3)
+                expect(nextGenerationMatrix(gen1)).to.deep.equal(gen2)
+                expect(nextGenerationMatrix(gen2)).to.deep.equal(gen3)
             })
         })
 
@@ -233,10 +230,10 @@ describe('Game Of Life Module', () => {
                     [0, 0, 0, 0, 0, 0]
                 ]
 
-                const gen2 = GameOfLifeModel.getNextGeneration(gen1)
-                const gen3 = GameOfLifeModel.getNextGeneration(gen2)
-                const gen4 = GameOfLifeModel.getNextGeneration(gen3)
-                expect(GameOfLifeModel.getNextGeneration(gen4)).to.deep.equal(gen5)
+                const gen2 = nextGenerationMatrix(gen1)
+                const gen3 = nextGenerationMatrix(gen2)
+                const gen4 = nextGenerationMatrix(gen3)
+                expect(nextGenerationMatrix(gen4)).to.deep.equal(gen5)
             })
         })
     })

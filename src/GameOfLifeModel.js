@@ -11,8 +11,8 @@ export default {
         return matrix
     },
 
-    getNextGeneration(matrixAsArgument) {
-        matrix = nextGenerationMatrix(arguments.length ? matrixAsArgument : matrix)
+    getNextGeneration() {
+        matrix = nextGenerationMatrix(matrix)
 
         return matrix
     },
